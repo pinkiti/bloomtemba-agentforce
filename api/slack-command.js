@@ -3,16 +3,23 @@ export default async function handler(req, res) {
 
   res.status(200).end(); // Slackに即時応答
 
-  // ✅ ここにSalesforceへの保存処理を追加する
-  await axios.post('https://your-instance.salesforce.com/services/data/vXX.X/sobjects/CustomMemo__c', {
-    MemoText__c: text,
-    SlackUser__c: user_name,
-    Timestamp__c: new Date().toISOString()
-  }, {
+  // ✅ 環境変数からSalesforce情報を取得
+  const access_token = process.env.SALESFORCE_ACCESS_TOKEN;
+  const instance_url = process.env.SALESFORCE_INSTANCE_URL;
+  const api_version = process.env.SALESFORCE_API_VERSION;
+
+  // ✅ Salesforceに記録を送信
+  await fetch(`${instance_url}/services/data/${api_version}/sobjects/CustomMemo__c`, {
+    method: 'POST',
     headers: {
-      Authorization: `Bearer ${access_token}`, // SalesforceのOAuthトークン
+      Authorization: `Bearer ${access_token}`,
       'Content-Type': 'application/json'
-    }
+    },
+    body: JSON.stringify({
+      MemoText__c: text,
+      SlackUser__c: user_name,
+      Timestamp__c: new Date().toISOString()
+    })
   });
 
   // Slackに非同期応答
