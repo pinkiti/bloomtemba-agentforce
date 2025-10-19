@@ -22,12 +22,25 @@ export default async function handler(req, res) {
     })
   });
 
-  // Slackに非同期応答
+  // ✅ Slackに投稿（chat.postMessage）
+  await fetch('https://slack.com/api/chat.postMessage', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.SLACK_BOT_TOKEN}`, // Bot Tokenを環境変数に設定
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      channel: 'C09KSQWNDTM', // ← #bloom-memo のチャンネルIDに置き換えてください
+      text: `記録しました：${text}`
+    })
+  });
+
+  // ✅ Slackに非同期応答（オプション）
   await fetch(response_url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      text: `記録しました：${text}`
+      text: `Salesforceにも記録しました：${text}`
     })
   });
 }
